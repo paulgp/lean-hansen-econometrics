@@ -47,7 +47,7 @@ Then prove:
 - finite-second-moment consequences
 
 ## Files
-- `Hansench2/Chapter2CondExp.lean` — first formalized theorem chain
+- `HansenEconometrics/Chapter2CondExp.lean` — first formalized theorem chain
 - later likely additions:
-  - `Hansench2/Chapter2Variance.lean`
-  - `Hansench2/Chapter2Projection.lean`
+  - `HansenEconometrics/Chapter2Variance.lean`
+  - `HansenEconometrics/Chapter2Projection.lean`

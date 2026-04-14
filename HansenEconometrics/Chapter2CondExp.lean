@@ -3,7 +3,7 @@ import Mathlib
 open scoped ENNReal Topology MeasureTheory ProbabilityTheory
 open MeasureTheory
 
-namespace Hansench2
+namespace HansenEconometrics
 
 variable {Ω β γ : Type*}
 variable {m m₁ m₂ m₀ : MeasurableSpace Ω}
@@ -132,4 +132,4 @@ theorem integral_mul_cefError_zero
     simp [hω])]
   simp
 
-end Hansench2
+end HansenEconometrics

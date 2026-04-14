@@ -11,6 +11,7 @@ Primary source text:
 
 Current emphasis:
 - Chapter 2 (`Conditional Expectation and Projection`)
+- Chapter 3 (`The Algebra of Least Squares`) scaffolded and ready for the next theorem pass
 
 Longer-run goal:
 - formalize as much of the book as is realistic, starting from probability / conditional expectation / projection foundations and moving outward toward asymptotics, least squares, testing, IV, GMM, time series, panel data, and beyond.
@@ -32,9 +33,9 @@ In practice this means we will often restate Hansen’s results in more Lean-nat
 
 ## Repository structure
 
-- `Hansench2/` — Lean source files
+- `HansenEconometrics/` — Lean source files
 - `notes/` — theorem inventories / progress notes
-- `Hansench2.lean` — root imports
+- `HansenEconometrics.lean` — root imports
 - `lakefile.toml`, `lake-manifest.json`, `lean-toolchain` — Lean project config
 
 ## Chapter progress
@@ -49,7 +50,7 @@ Legend:
 |---:|---|---|---|
 | 01 | Introduction | not started | mostly exposition; probably little to formalize directly |
 | 02 | Conditional Expectation and Projection | partial | first conditional-expectation theorem layer completed |
-| 03 | The Algebra of Least Squares | not started | likely next major algebra/projection target |
+| 03 | The Algebra of Least Squares | in progress | scaffold created; next major algebra/projection target |
 | 04 | Least Squares Regression | not started | finite-sample regression theory |
 | 05 | Normal Regression | not started | distributional finite-sample results |
 | 06 | A Review of Large Sample Asymptotics | not started | likely prerequisite for later asymptotics chapters |
@@ -79,7 +80,7 @@ Legend:
 
 ## Current Chapter 2 progress
 
-Completed in `Hansench2/Chapter2CondExp.lean`:
+Completed in `HansenEconometrics/Chapter2CondExp.lean`:
 - simple law of iterated expectations
 - tower property for nested sigma-algebras
 - tower property in the `X₁, X₂` then `X₁` form
