@@ -44,10 +44,15 @@ conditional-covariance bridge is still pending.
 16. homoskedastic and heteroskedastic covariance estimators
 17. clustered covariance estimator
 
-Status: pending. These should come after the covariance-matrix layer is stable.
+Status: partially landed in `HansenEconometrics/Chapter4LeastSquaresRegression.lean`.
+The deterministic GLS coefficient algebra now exists: definition of `glsBeta`, the decomposition
+`β̂_GLS = β + (Xᵀ Ω⁻¹ X)⁻¹ Xᵀ Ω⁻¹ e`, and the weighted-orthogonality specialization.
+The positive-semidefinite Gauss-Markov lower-bound proof and the stochastic covariance / expectation
+bridge are still pending.
 
 ## Immediate target
 Continue Chapter 4 with the conditional-unbiasedness bridge: encode the right conditional-mean-zero
 assumption for the finite-sample error vector and prove that equation (4.6) implies Theorem 4.1 in
 Lean-native conditional-expectation notation, then connect the Chapter 4.2 covariance matrix algebra
-to a matrix-valued conditional covariance statement.
+to a matrix-valued conditional covariance statement. After that, return to the positive-semidefinite
+Gauss-Markov lower-bound proof and the generalized covariance lower bound.
