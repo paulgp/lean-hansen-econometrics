@@ -56,12 +56,16 @@ unconditional matrix identity by integration.
 Status: partially landed in `HansenEconometrics/Chapter4LeastSquaresRegression.lean`.
 The deterministic GLS coefficient algebra now exists: definition of `glsBeta`, the decomposition
 `β̂_GLS = β + (Xᵀ Ω⁻¹ X)⁻¹ Xᵀ Ω⁻¹ e`, and the weighted-orthogonality specialization.
-The positive-semidefinite Gauss-Markov lower-bound proof has also landed.
-Still pending are the generalized covariance lower bound and the covariance-estimator layer
-(residual variance, homoskedastic/heteroskedastic covariance estimators, clustered covariance).
+The positive-semidefinite Gauss-Markov lower-bound proof has also landed. For covariance estimators,
+the chapter now includes the core heteroskedastic-robust objects:
+- `olsIdealVarianceEstimator`
+- `olsHuberWhiteVarianceEstimator` (HC0 / White)
+- `olsHuberWhiteHC1VarianceEstimator`
+plus the linear-model rewrite `olsHuberWhiteVarianceEstimator_linear_model`.
+Still pending are the generalized covariance lower bound, residual variance estimators, and the more
+refined covariance-estimator layer (HC2/HC3 and clustered covariance).
 
 ## Immediate target
 Resume from Layer 4. The main remaining Chapter 4 work is to extend the deterministic GLS /
-Gauss-Markov material into the generalized covariance lower bound, then formalize the estimator
-layer: residual variance, homoskedastic and heteroskedastic covariance estimators, and clustered
-covariance.
+Gauss-Markov material into the generalized covariance lower bound, then continue the estimator
+layer beyond HC0/HC1: residual variance, HC2/HC3, and clustered covariance.

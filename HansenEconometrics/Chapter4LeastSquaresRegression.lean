@@ -56,6 +56,21 @@ noncomputable def olsConditionalVarianceMatrix
     (X : Matrix n k ℝ) (D : Matrix n n ℝ) [Invertible (Xᵀ * X)] : Matrix k k ℝ :=
   ⅟ (Xᵀ * X) * Xᵀ * D * X * ⅟ (Xᵀ * X)
 
+/-- Hansen Section 4.16 infeasible heteroskedastic covariance estimator using the true squared errors. -/
+noncomputable def olsIdealVarianceEstimator
+    (X : Matrix n k ℝ) (e : n → ℝ) [DecidableEq n] [Invertible (Xᵀ * X)] : Matrix k k ℝ :=
+  olsConditionalVarianceMatrix X (Matrix.diagonal fun i => e i ^ 2)
+
+/-- White's HC0 heteroskedasticity-robust covariance estimator. -/
+noncomputable def olsHuberWhiteVarianceEstimator
+    (X : Matrix n k ℝ) (y : n → ℝ) [DecidableEq n] [Invertible (Xᵀ * X)] : Matrix k k ℝ :=
+  olsConditionalVarianceMatrix X (Matrix.diagonal fun i => residual X y i ^ 2)
+
+/-- HC1 degrees-of-freedom adjustment to the Huber-White covariance estimator. -/
+noncomputable def olsHuberWhiteHC1VarianceEstimator
+    (X : Matrix n k ℝ) (y : n → ℝ) [DecidableEq n] [Invertible (Xᵀ * X)] : Matrix k k ℝ :=
+  ((Fintype.card n : ℝ) / (Fintype.card n - Fintype.card k : ℝ)) • olsHuberWhiteVarianceEstimator X y
+
 /-- The covariance formula written as `Aᵀ D A`, where `A = X (XᵀX)⁻¹`. -/
 theorem olsConditionalVarianceMatrix_eq_Atranspose_D_A
     (X : Matrix n k ℝ) (D : Matrix n n ℝ) [Invertible (Xᵀ * X)] :
@@ -73,6 +88,24 @@ theorem olsConditionalVarianceMatrix_homoskedastic
   unfold olsConditionalVarianceMatrix
   rw [Matrix.mul_assoc (⅟ (Xᵀ * X) * Xᵀ) (σ2 • (1 : Matrix n n ℝ)) X]
   simp [Matrix.mul_assoc]
+
+/-- In the linear model, the HC0 estimator can be written using annihilator-transformed errors. -/
+theorem olsHuberWhiteVarianceEstimator_linear_model
+    (X : Matrix n k ℝ) (β : k → ℝ) (e : n → ℝ)
+    [DecidableEq n] [Invertible (Xᵀ * X)] :
+    olsHuberWhiteVarianceEstimator X (X *ᵥ β + e) =
+      olsConditionalVarianceMatrix X
+        (Matrix.diagonal fun i => (annihilatorMatrix X *ᵥ e) i ^ 2) := by
+  unfold olsHuberWhiteVarianceEstimator
+  rw [residual_linear_model]
+
+/-- HC1 is a degrees-of-freedom rescaling of White's HC0 estimator. -/
+theorem olsHuberWhiteHC1VarianceEstimator_eq_smul
+    (X : Matrix n k ℝ) (y : n → ℝ)
+    [DecidableEq n] [Invertible (Xᵀ * X)] :
+    olsHuberWhiteHC1VarianceEstimator X y =
+      ((Fintype.card n : ℝ) / (Fintype.card n - Fintype.card k : ℝ)) •
+        olsHuberWhiteVarianceEstimator X y := rfl
 
 /-- Deterministic core of the Gauss-Markov theorem: the variance-gap matrix is positive semidefinite. -/
 theorem gaussMarkov_variance_gap_posSemidef
