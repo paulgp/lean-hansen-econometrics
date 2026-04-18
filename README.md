@@ -52,7 +52,7 @@ Legend:
 | 02 | Conditional Expectation and Projection | partial | conditional expectation, variance, and linear projection algebra completed |
 | 03 | The Algebra of Least Squares | partial | OLS algebra + projection/annihilator/FWL coefficient and residual core landed |
 | 04 | Least Squares Regression | partial | OLS/GLS algebra, unbiasedness, covariance identities, and Gauss-Markov lower bounds landed; HC2/HC3 and clustered SEs deferred |
-| 05 | Normal Regression | inventoried | next target: finite-sample normal-model distributions and classical inference |
+| 05 | Normal Regression | partial | normal-model scaffolding, Gaussian laws for `β̂` and residuals, and residual-quadratic-form setup for `s²` landed |
 | 06 | A Review of Large Sample Asymptotics | inventoried | likely prerequisite for later asymptotics chapters |
 | 07 | Asymptotic Theory for Least Squares | inventoried | consistency / asymptotic normality targets |
 | 08 | Restricted Estimation | inventoried | constrained estimation / minimum distance |
@@ -132,6 +132,22 @@ See also:
 - `notes/ch03/ch3_excerpt.txt`
 - `notes/ch04/inventory.md`
 - `notes/ch04/ch4_excerpt.txt`
+
+## Current Chapter 5 progress
+
+Completed in `HansenEconometrics/Chapter5NormalRegression.lean`:
+- finite-sample residual variance estimator definition
+- deterministic linear-model rewrite of `s²` in terms of the model error
+- Gaussian law for the OLS coefficient vector as an affine image of the error vector
+- Gaussian law for the OLS residual vector as a linear image of the error vector
+- residual sum of squares rewritten as the annihilator quadratic form `e'Me`
+- `s²` rewritten as `e'Me / (n-k)`, which is the deterministic setup for the chi-square step
+
+Planned next within Chapter 5:
+- prove the chi-square law for the residual variance estimator
+- prove the key independence statements between `β̂` and residual quadratic forms / `s²`
+- derive the exact t-statistic law
+- package confidence intervals and classical tests as corollaries
 
 ## Current Chapter 4 progress
 
