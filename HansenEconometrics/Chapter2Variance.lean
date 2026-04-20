@@ -68,4 +68,49 @@ theorem variance_condExp_le_variance
     exact sq_nonneg _
   linarith
 
+/-- Hansen Theorem 2.6:
+monotonic decrease of residual variance under larger conditioning sets.
+If `m₁ ≤ m₂ ≤ m₀`, then `Var[Y - E[Y|m₂]] ≤ Var[Y - E[Y|m₁]]`,
+i.e., conditioning on more information (weakly) reduces
+the variance of the regression error. -/
+theorem variance_cefError_antitone
+    {m₁ m₂ : MeasurableSpace Ω}
+    {Y : Ω → ℝ}
+    (hm₁₂ : m₁ ≤ m₂)
+    (hm₂₀ : m₂ ≤ m₀)
+    [IsProbabilityMeasure μ]
+    (hY : MemLp Y 2 μ) :
+    Var[cefError μ Y m₂; μ] ≤ Var[cefError μ Y m₁; μ] := by
+  have hm₁₀ : m₁ ≤ m₀ := le_trans hm₁₂ hm₂₀
+  have hYi : Integrable Y μ := hY.integrable one_le_two
+  -- Conditional expectation MemLp facts
+  have hce₁ : MemLp (μ[Y | m₁]) 2 μ := hY.condExp
+  have hce₂ : MemLp (μ[Y | m₂]) 2 μ := hY.condExp
+  -- Step 1: Var[cefError μ Y m] = μ[Var[Y|m]] since E[cefError] = 0
+  have hv₁ : Var[cefError μ Y m₁; μ] = ∫ ω, Var[Y; μ | m₁] ω ∂μ := by
+    rw [variance_of_integral_eq_zero (memLp_cefError (m := m₁) hY).aemeasurable
+      (integral_cefError_zero (m := m₁) (m₀ := m₀) hm₁₀ hYi)]
+    exact (integral_condVar_eq_integral_cefError_sq (m := m₁) (m₀ := m₀) hm₁₀
+      (hY.sub hce₁).integrable_sq).symm
+  have hv₂ : Var[cefError μ Y m₂; μ] = ∫ ω, Var[Y; μ | m₂] ω ∂μ := by
+    rw [variance_of_integral_eq_zero (memLp_cefError (m := m₂) hY).aemeasurable
+      (integral_cefError_zero (m := m₂) (m₀ := m₀) hm₂₀ hYi)]
+    exact (integral_condVar_eq_integral_cefError_sq (m := m₂) (m₀ := m₀) hm₂₀
+      (hY.sub hce₂).integrable_sq).symm
+  rw [hv₂, hv₁]
+  -- Goal: μ[Var[Y|m₂]] ≤ μ[Var[Y|m₁]]
+  -- Step 2: From variance decomposition, μ[Var[Y|m]] = Var[Y] - Var[μ[Y|m]]
+  have hd₁ := variance_decomposition (m := m₁) (m₀ := m₀) hm₁₀ hY
+  have hd₂ := variance_decomposition (m := m₂) (m₀ := m₀) hm₂₀ hY
+  -- Step 3: Explained variance is monotone: Var[μ[Y|m₁]] ≤ Var[μ[Y|m₂]]
+  -- By the tower property and variance_condExp_le_variance
+  have htower := tower_property (Ω := Ω) (μ := μ) (Y := Y)
+    (m₁ := m₁) (m₂ := m₂) (m₀ := m₀) hm₁₂ hm₂₀
+  have hmono : Var[μ[Y | m₁]; μ] ≤ Var[μ[Y | m₂]; μ] :=
+    calc Var[μ[Y | m₁]; μ]
+        = Var[μ[μ[Y | m₂] | m₁]; μ] := (variance_congr htower).symm
+      _ ≤ Var[μ[Y | m₂]; μ] :=
+          variance_condExp_le_variance (m := m₁) (m₀ := m₀) hm₁₀ hce₂
+  linarith
+
 end HansenEconometrics

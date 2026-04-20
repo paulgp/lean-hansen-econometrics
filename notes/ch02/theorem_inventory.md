@@ -61,8 +61,8 @@ Then prove:
 - quadratic criterion simplification at `β`
 
 ## Later chapter targets (not yet formalized)
-- **T2.5** finite regression-error variance from `E[Y²] < ∞`
-- **T2.6** monotonic decrease of residual variance under larger conditioning sets
+- **T2.5** finite regression-error variance from `E[Y²] < ∞` (PGP has done this in `Chapter2Variance`)
+- **T2.6** monotonic decrease of residual variance under larger conditioning sets (PGP has done this in `Chapter2Variance` -- `variance_cefError_antitone`)
 - conditional expectation as best predictor
 - full best-linear-predictor minimization statement
 - finite-second-moment consequences
