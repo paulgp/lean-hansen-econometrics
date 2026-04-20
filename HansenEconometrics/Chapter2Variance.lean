@@ -22,6 +22,15 @@ theorem integral_condVar_eq_integral_cefError_sq
     (ProbabilityTheory.setIntegral_condVar (m := m) (m₀ := m₀) (μ := μ)
       (X := Y) hY2 MeasurableSet.univ)
 
+/-- Hansen Theorem 2.5: if `Y` has a finite second moment (`MemLp Y 2 μ`),
+then the CEF error `e = Y - E[Y|m]` also has a finite second moment,
+i.e., the regression-error variance σ² < ∞. -/
+theorem memLp_cefError
+    {Y : Ω → ℝ}
+    (hY : MemLp Y 2 μ) :
+    MemLp (cefError μ Y m) 2 μ :=
+  hY.sub hY.condExp
+
 /-- Hansen Theorem 2.8 / law of total variance in Mathlib form. -/
 theorem law_total_variance
     {Y : Ω → ℝ}
