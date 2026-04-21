@@ -271,13 +271,18 @@ theorem hasLaw_sq_chiSquared_one
 
 /-! ### Gamma convolution lemma -/
 
-/-- The convolution of two Gamma measures with the same rate parameter is another Gamma measure.
-Specifically, `Gamma(a, r) ∗ Gamma(b, r) = Gamma(a+b, r)`. -/
-lemma gammaMeasure_mconv_same_rate_eq {a b r : ℝ} (hr : 0 < r) (ha : 0 < a) (hb : 0 < b) :
-    gammaMeasure a r ∗ₘ gammaMeasure b r = gammaMeasure (a + b) r := by
-  -- This follows from the fact that the sum of independent Gamma(a,r) and Gamma(b,r) random
-  -- variables is Gamma(a+b, r), which translates to the convolution of their measures.
-  -- For now, we defer the proof to the characteristic function approach or density computation.
+/-- **Gamma additivity**: the additive convolution of two Gamma measures with the same rate
+parameter is again a Gamma measure: `Gamma(a, r) ∗ Gamma(b, r) = Gamma(a+b, r)`.  This
+corresponds to the fact that the sum of independent Gamma(a, r) and Gamma(b, r) random
+variables is Gamma(a+b, r).
+
+Proof strategy (deferred): compute the convolution density
+`(f_a ∗ f_b)(x) = ∫₀ˣ f_a(x-y) f_b(y) dy`.  The integral reduces to `x^(a+b-1) · B(a, b)`
+via the substitution `y = xu`, and the Beta identity `B(a,b) = Γ(a)Γ(b)/Γ(a+b)`
+(`Real.Gamma_mul_Gamma_eq_betaIntegral`) collapses the remaining constants to
+`r^(a+b)/Γ(a+b)`, matching `gammaPDFReal (a+b) r`. -/
+lemma gammaMeasure_conv_same_rate_eq {a b r : ℝ} (hr : 0 < r) (ha : 0 < a) (hb : 0 < b) :
+    gammaMeasure a r ∗ gammaMeasure b r = gammaMeasure (a + b) r := by
   sorry
 
 theorem hasLaw_add_chiSquared
@@ -287,11 +292,22 @@ theorem hasLaw_add_chiSquared
     (hX : HasLaw X (chiSquared a)) (hY : HasLaw Y (chiSquared b))
     (hIndep : IndepFun X Y) :
     HasLaw (fun ω => X ω + Y ω) (chiSquared (a + b)) := by
-  -- The proof follows from:
-  -- 1. IndepFun.hasLaw_add: X + Y has the convolution of the two measures
-  -- 2. Gamma convolution with the same rate: Gamma(a,r) ∗ Gamma(b,r) = Gamma(a+b,r)
-  -- The technical details require SigmaFinite instances which we defer.
-  sorry
+  have ha' : (0 : ℝ) < (a : ℝ) / 2 := div_pos (Nat.cast_pos.mpr ha) (by norm_num)
+  have hb' : (0 : ℝ) < (b : ℝ) / 2 := div_pos (Nat.cast_pos.mpr hb) (by norm_num)
+  haveI : IsProbabilityMeasure (chiSquared a) := isProbabilityMeasure_chiSquared ha
+  haveI : IsProbabilityMeasure (chiSquared b) := isProbabilityMeasure_chiSquared hb
+  have hsum := IndepFun.hasLaw_fun_add hX hY hIndep
+  rw [chiSquared_eq a, chiSquared_eq b] at hsum
+  -- The additive-convolution identity for gamma measures with the same rate.
+  have hconv : gammaMeasure ((a:ℝ)/2) (1/2) ∗ gammaMeasure ((b:ℝ)/2) (1/2)
+      = gammaMeasure (((a:ℝ)/2) + ((b:ℝ)/2)) (1/2) :=
+    gammaMeasure_conv_same_rate_eq (by norm_num : (0:ℝ) < 1/2) ha' hb'
+  rw [hconv] at hsum
+  have hcast : ((a : ℝ) / 2 + (b : ℝ) / 2) = ((a + b : ℕ) : ℝ) / 2 := by
+    push_cast; ring
+  rw [hcast] at hsum
+  rw [chiSquared_eq (a + b)]
+  exact hsum
 
 theorem hasLaw_sum_sq_chiSquared
     {k : ℕ} (hk : 0 < k)
@@ -300,15 +316,84 @@ theorem hasLaw_sum_sq_chiSquared
     (hLaw : ∀ i, HasLaw (W i) (gaussianReal 0 1))
     (hIndep : ProbabilityTheory.iIndepFun W) :
     HasLaw (fun ω => ∑ i, (W i ω)^2) (chiSquared k) := by
-  -- Proof by induction on k.
-  -- Base case: k = 1, i.e., a single squared standard normal is χ²(1).
-  -- Inductive case: sum of (k+1) squared standard normals is χ²(k+1).
-  -- The key steps are:
-  -- 1. Decompose the sum as (∑ i < k, (W i)²) + (W_k)²
-  -- 2. By induction, the first part is χ²(k)
-  -- 3. The second part is χ²(1) by hasLaw_sq_chiSquared_one
-  -- 4. They are independent, so apply hasLaw_add_chiSquared
-  -- The technical challenge is extracting independence for the subsums from iIndepFun.
-  sorry
+  -- Reduce `k` to `n + 1` so we can induct on `n`.
+  obtain ⟨n, rfl⟩ := Nat.exists_eq_succ_of_ne_zero hk.ne'
+  clear hk
+  induction n with
+  | zero =>
+    -- Base case k = 1: a single squared standard normal is χ²(1).
+    have hsum_eq : (fun ω => ∑ i : Fin 1, (W i ω)^2) = (fun ω => (W 0 ω)^2) := by
+      funext ω
+      simp
+    rw [hsum_eq]
+    exact hasLaw_sq_chiSquared_one (hLaw 0)
+  | succ n ih =>
+    -- Inductive step: the family has length `n + 2 = (n + 1) + 1`.
+    -- Define the truncated family on the first `n + 1` indices.
+    set V : Fin (n + 1) → Ω → ℝ := fun i => W i.castSucc with hV_def
+    have hLawV : ∀ i, HasLaw (V i) (gaussianReal 0 1) := fun i => hLaw i.castSucc
+    have hIndepV : ProbabilityTheory.iIndepFun V :=
+      hIndep.precomp (Fin.castSucc_injective (n + 1))
+    -- Apply the inductive hypothesis to V.
+    have hIH : HasLaw (fun ω => ∑ i : Fin (n + 1), (V i ω)^2) (chiSquared (n + 1)) :=
+      ih hLawV hIndepV
+    -- The last squared standard normal has law χ²(1).
+    have hLast : HasLaw (fun ω => (W (Fin.last (n + 1)) ω)^2) (chiSquared 1) :=
+      hasLaw_sq_chiSquared_one (hLaw (Fin.last (n + 1)))
+    -- Build independence between the partial sum (squared) and the last squared element.
+    -- Step A: lift squaring through the iIndepFun structure.
+    have hSqIndep : ProbabilityTheory.iIndepFun (fun i (ω : Ω) => (W i ω)^2) := by
+      have hsq : Measurable (fun x : ℝ => x^2) := by fun_prop
+      exact hIndep.comp (fun _ x => x^2) (fun _ => hsq)
+    -- Step B: apply the additive sibling of `iIndepFun.indepFun_finset_prod_of_notMem`.
+    let s : Finset (Fin (n + 2)) := (Finset.univ : Finset (Fin (n + 2))).erase (Fin.last (n + 1))
+    have hLastNotMem : Fin.last (n + 1) ∉ s := Finset.notMem_erase _ _
+    -- Use the AEMeasurable variant of the finset-sum lemma so we don't need Measurable.
+    have hSqAEMeas : ∀ i, AEMeasurable (fun ω : Ω => (W i ω)^2) := by
+      intro i
+      have hWmeas : AEMeasurable (W i) := (hLaw i).aemeasurable
+      exact hWmeas.pow_const 2
+    have hIndepSumLast : ProbabilityTheory.IndepFun
+        (∑ j ∈ s, fun ω : Ω => (W j ω)^2)
+        (fun ω : Ω => (W (Fin.last (n + 1)) ω)^2) := by
+      have := hSqIndep.indepFun_finset_sum_of_notMem₀ hSqAEMeas hLastNotMem
+      exact this
+    -- Step C: rewrite the finset sum as the `Fin (n+1)` sum via `Fin.castSucc`.
+    have hsumRewrite : ∀ ω, ∑ j ∈ s, (W j ω)^2 = ∑ i : Fin (n + 1), (V i ω)^2 := by
+      intro ω
+      have hs_image : s = (Finset.univ : Finset (Fin (n + 1))).image Fin.castSucc := by
+        ext j
+        simp only [s, Finset.mem_erase, Finset.mem_univ, true_and, and_true,
+          Finset.mem_image]
+        refine ⟨fun hj => ?_, fun ⟨i, hi⟩ => ?_⟩
+        · -- j ≠ last → j is in the image of castSucc
+          rcases Fin.eq_castSucc_or_eq_last j with hcs | hlast
+          · obtain ⟨i, rfl⟩ := hcs
+            exact ⟨i, rfl⟩
+          · exact absurd hlast hj
+        · subst hi
+          exact (Fin.castSucc_lt_last i).ne
+      rw [hs_image, Finset.sum_image
+        ((Fin.castSucc_injective (n + 1)).injOn)]
+    have hIndepFinal : ProbabilityTheory.IndepFun
+        (fun ω => ∑ i : Fin (n + 1), (V i ω)^2)
+        (fun ω => (W (Fin.last (n + 1)) ω)^2) := by
+      have hfun_eq : (∑ j ∈ s, fun ω : Ω => (W j ω)^2) =
+          (fun ω => ∑ i : Fin (n + 1), (V i ω)^2) := by
+        funext ω
+        rw [Finset.sum_apply]
+        exact hsumRewrite ω
+      rw [← hfun_eq]
+      exact hIndepSumLast
+    -- Apply the gamma-additivity result to conclude.
+    have hAdd := hasLaw_add_chiSquared (a := n + 1) (b := 1)
+      (Nat.succ_pos n) Nat.one_pos hIH hLast hIndepFinal
+    -- Rewrite the goal so it matches `(fun ω => partial + last)`.
+    have hgoal_eq : (fun ω => ∑ i : Fin (n + 2), (W i ω)^2) =
+        (fun ω => (∑ i : Fin (n + 1), (V i ω)^2) + (W (Fin.last (n + 1)) ω)^2) := by
+      funext ω
+      simp [Fin.sum_univ_castSucc, V]
+    rw [hgoal_eq]
+    exact hAdd
 
 end HansenEconometrics
