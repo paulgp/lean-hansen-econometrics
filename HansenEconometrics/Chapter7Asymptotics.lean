@@ -163,6 +163,24 @@ theorem sampleCrossMoment_stackRegressors_stackErrors_eq_avg
   rw [stackRegressors_transpose_mulVec_stackErrors_eq_sum]
   simp [Fintype.card_fin]
 
+omit [Fintype k] [DecidableEq k] in
+/-- Bridge `Fin n` summation to `Finset.range n` summation for outer products of
+regressors — matches the indexing of Mathlib's WLLN. -/
+theorem sum_fin_eq_sum_range_vecMulVec
+    (X : ℕ → Ω → (k → ℝ)) (n : ℕ) (ω : Ω) :
+    (∑ i : Fin n, Matrix.vecMulVec (X i.val ω) (X i.val ω)) =
+      ∑ i ∈ Finset.range n, Matrix.vecMulVec (X i ω) (X i ω) :=
+  Fin.sum_univ_eq_sum_range (fun i => Matrix.vecMulVec (X i ω) (X i ω)) n
+
+omit [Fintype k] [DecidableEq k] in
+/-- Bridge `Fin n` summation to `Finset.range n` summation for error-weighted
+regressors — matches the indexing of Mathlib's WLLN. -/
+theorem sum_fin_eq_sum_range_smul
+    (X : ℕ → Ω → (k → ℝ)) (e : ℕ → Ω → ℝ) (n : ℕ) (ω : Ω) :
+    (∑ i : Fin n, e i.val ω • X i.val ω) =
+      ∑ i ∈ Finset.range n, e i ω • X i ω :=
+  Fin.sum_univ_eq_sum_range (fun i => e i ω • X i ω) n
+
 end Stacking
 
 end HansenEconometrics
