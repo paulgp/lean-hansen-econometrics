@@ -256,6 +256,30 @@ theorem sampleGram_stackRegressors_tendstoInMeasure_popGram
     (fun i ω => Matrix.vecMulVec (X i ω) (X i ω))
     h.int_outer h.indep_outer h.ident_outer
 
+/-- **Hansen WLLN for the sample cross moment.** Under Assumption 7.1, the sample
+cross moment `ĝₙ = n⁻¹ ∑ eᵢ Xᵢ` of the stacked design converges in probability to
+`0`, since the population cross moment `𝔼[e X] = 0` by the orthogonality axiom. -/
+theorem sampleCrossMoment_stackRegressors_stackErrors_tendstoInMeasure_zero
+    {μ : Measure Ω} [IsFiniteMeasure μ]
+    {X : ℕ → Ω → (k → ℝ)} {e : ℕ → Ω → ℝ}
+    (h : SampleAssumption71 μ X e) :
+    TendstoInMeasure μ
+      (fun n ω => sampleCrossMoment (stackRegressors X n ω) (stackErrors e n ω))
+      atTop
+      (fun _ => 0) := by
+  have hfun_eq : (fun n ω => sampleCrossMoment (stackRegressors X n ω)
+        (stackErrors e n ω)) =
+      (fun (n : ℕ) ω => (n : ℝ)⁻¹ •
+        ∑ i ∈ Finset.range n, e i ω • X i ω) := by
+    funext n ω
+    rw [sampleCrossMoment_stackRegressors_stackErrors_eq_avg,
+        sum_fin_eq_sum_range_smul]
+  rw [hfun_eq, show (fun _ : Ω => (0 : k → ℝ)) =
+      (fun _ : Ω => μ[fun ω => e 0 ω • X 0 ω]) by rw [h.orthogonality]]
+  exact tendstoInMeasure_wlln
+    (fun i ω => e i ω • X i ω)
+    h.int_cross h.indep_cross h.ident_cross
+
 end Assumption71
 
 end HansenEconometrics
