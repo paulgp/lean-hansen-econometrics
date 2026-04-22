@@ -91,4 +91,23 @@ theorem olsBeta_sub_eq_sampleGram_inv_mulVec_sampleCrossMoment
   rw [Matrix.smul_mulVec, Matrix.mulVec_smul,
       smul_smul, mul_inv_cancel₀ hne, one_smul]
 
+section Stacking
+
+variable {Ω : Type*} {k : Type*} [Fintype k] [DecidableEq k]
+
+/-- Stack the first `n` observations of an `ℕ`-indexed regressor sequence into an
+`Fin n`-row design matrix at a fixed sample point `ω`. -/
+def stackRegressors (X : ℕ → Ω → (k → ℝ)) (n : ℕ) (ω : Ω) : Matrix (Fin n) k ℝ :=
+  Matrix.of (fun i j => X i.val ω j)
+
+/-- Stack the first `n` scalar errors into a `Fin n`-indexed vector. -/
+def stackErrors (e : ℕ → Ω → ℝ) (n : ℕ) (ω : Ω) : Fin n → ℝ :=
+  fun i => e i.val ω
+
+/-- Stack the first `n` outcomes into a `Fin n`-indexed vector. -/
+def stackOutcomes (y : ℕ → Ω → ℝ) (n : ℕ) (ω : Ω) : Fin n → ℝ :=
+  fun i => y i.val ω
+
+end Stacking
+
 end HansenEconometrics
