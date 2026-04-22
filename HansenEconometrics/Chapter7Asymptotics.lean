@@ -135,7 +135,7 @@ omit [Fintype k] [DecidableEq k] in
 /-- The sample Gram matrix of the stacked design equals the sample mean of rank-1
 outer products `Xᵢ Xᵢᵀ`. -/
 theorem sampleGram_stackRegressors_eq_avg_sum
-    (X : ℕ → Ω → (k → ℝ)) (n : ℕ) (ω : Ω) [NeZero n] :
+    (X : ℕ → Ω → (k → ℝ)) (n : ℕ) (ω : Ω) :
     sampleGram (stackRegressors X n ω) =
       (n : ℝ)⁻¹ • ∑ i : Fin n, Matrix.vecMulVec (X i.val ω) (X i.val ω) := by
   unfold sampleGram
