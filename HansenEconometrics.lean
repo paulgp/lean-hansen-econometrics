@@ -1,12 +1,13 @@
 import HansenEconometrics.Basic
 import HansenEconometrics.LinearAlgebraUtils
 import HansenEconometrics.ProbabilityUtils
+import HansenEconometrics.Probability.RandomVars
 
 import HansenEconometrics.Chapter2CondExp
 
 import HansenEconometrics.Chapter2LinearProjection
-import HansenEconometrics.Chapter3LeastSquaresAlgebra
 import HansenEconometrics.Chapter2Variance
+import HansenEconometrics.Chapter3LeastSquaresAlgebra
 import HansenEconometrics.Chapter3Projections
 import HansenEconometrics.Chapter3FWL
 
