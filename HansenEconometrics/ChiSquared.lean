@@ -271,19 +271,30 @@ theorem hasLaw_sq_chiSquared_one
 
 /-! ### Gamma convolution lemma -/
 
+/-- Pointwise additive convolution identity for two Gamma densities with the same rate.
+This is the analytic core of Gamma additivity: it amounts to evaluating
+`∫₀ˣ y^(a-1) (x-y)^(b-1) dy = x^(a+b-1) · B(a,b)` for `x > 0` and using the Beta identity
+`B(a,b) = Γ(a)Γ(b)/Γ(a+b)`. -/
+private lemma gammaPDF_lconvolution_eq {a b r : ℝ} (hr : 0 < r) (ha : 0 < a) (hb : 0 < b) :
+    (gammaPDF a r ⋆ₗ[volume] gammaPDF b r) =ᵐ[volume] gammaPDF (a + b) r := by
+  sorry
+
 /-- **Gamma additivity**: the additive convolution of two Gamma measures with the same rate
 parameter is again a Gamma measure: `Gamma(a, r) ∗ Gamma(b, r) = Gamma(a+b, r)`.  This
 corresponds to the fact that the sum of independent Gamma(a, r) and Gamma(b, r) random
 variables is Gamma(a+b, r).
 
-Proof strategy (deferred): compute the convolution density
-`(f_a ∗ f_b)(x) = ∫₀ˣ f_a(x-y) f_b(y) dy`.  The integral reduces to `x^(a+b-1) · B(a, b)`
-via the substitution `y = xu`, and the Beta identity `B(a,b) = Γ(a)Γ(b)/Γ(a+b)`
-(`Real.Gamma_mul_Gamma_eq_betaIntegral`) collapses the remaining constants to
-`r^(a+b)/Γ(a+b)`, matching `gammaPDFReal (a+b) r`. -/
+The proof reduces to the pointwise identity `gammaPDF_lconvolution_eq` (the additive
+convolution of two Gamma densities equals the sum-rate Gamma density a.e.) via the
+identity `withDensity f ∗ withDensity g = withDensity (f ⋆ₗ g)`. -/
 lemma gammaMeasure_conv_same_rate_eq {a b r : ℝ} (hr : 0 < r) (ha : 0 < a) (hb : 0 < b) :
     gammaMeasure a r ∗ gammaMeasure b r = gammaMeasure (a + b) r := by
-  sorry
+  have hmeas : ∀ a r : ℝ, Measurable (gammaPDF a r) := fun a r => by
+    unfold gammaPDF
+    exact (measurable_gammaPDFReal a r).ennreal_ofReal
+  unfold gammaMeasure
+  rw [conv_withDensity_eq_lconvolution (hmeas a r) (hmeas b r)]
+  exact withDensity_congr_ae (gammaPDF_lconvolution_eq hr ha hb)
 
 theorem hasLaw_add_chiSquared
     {a b : ℕ} (ha : 0 < a) (hb : 0 < b)
