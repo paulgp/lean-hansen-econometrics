@@ -1,6 +1,7 @@
 import HansenEconometrics.Basic
 import HansenEconometrics.LinearAlgebraUtils
 import HansenEconometrics.ProbabilityUtils
+import HansenEconometrics.AsymptoticUtils
 
 import HansenEconometrics.Chapter2CondExp
 
