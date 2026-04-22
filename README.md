@@ -91,6 +91,7 @@ and `HansenEconometrics/Chapter2LinearProjection.lean`:
   `condVarOn`, and `residualVarOn`
 - coordinatewise conditional-expectation / integral bridge lemmas for finite-dimensional random
   vectors and arrays
+- reusable finite-dimensional mean and covariance helpers `meanVec`, `covVec`, and `covMat`
 - simple law of iterated expectations
 - tower property for nested sigma-algebras
 - tower property in variable-facing form in `Chapter2CondExp.lean`
