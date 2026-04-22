@@ -157,6 +157,60 @@ theorem tendstoInMeasure_matrix_inv
 
 end MatrixInverse
 
+section MulVec
+
+open scoped Matrix Matrix.Norms.Elementwise
+
+/-- **Joint `TendstoInMeasure` on a product.** If `f n →ₚ finf` and `g n →ₚ ginf`, then
+`(f n, g n) →ₚ (finf, ginf)` in the product E-metric. -/
+theorem tendstoInMeasure_prodMk
+    {E F : Type*} [PseudoEMetricSpace E] [PseudoEMetricSpace F]
+    {f : ℕ → α → E} {finf : α → E} {g : ℕ → α → F} {ginf : α → F}
+    (hf : TendstoInMeasure μ f atTop finf)
+    (hg : TendstoInMeasure μ g atTop ginf) :
+    TendstoInMeasure μ (fun n ω => (f n ω, g n ω)) atTop (fun ω => (finf ω, ginf ω)) := by
+  intro ε hε
+  have hcover : ∀ n,
+      {ω | ε ≤ edist (f n ω, g n ω) (finf ω, ginf ω)} ⊆
+        {ω | ε ≤ edist (f n ω) (finf ω)} ∪ {ω | ε ≤ edist (g n ω) (ginf ω)} := by
+    intro n ω hω
+    rcases le_max_iff.mp (by simpa [Prod.edist_eq] using hω) with h | h
+    · exact Or.inl h
+    · exact Or.inr h
+  have hbound : ∀ n,
+      μ {ω | ε ≤ edist (f n ω, g n ω) (finf ω, ginf ω)} ≤
+        μ {ω | ε ≤ edist (f n ω) (finf ω)} + μ {ω | ε ≤ edist (g n ω) (ginf ω)} := fun n =>
+    (measure_mono (hcover n)).trans (measure_union_le _ _)
+  have hsum : Tendsto
+      (fun n => μ {ω | ε ≤ edist (f n ω) (finf ω)} + μ {ω | ε ≤ edist (g n ω) (ginf ω)})
+      atTop (𝓝 0) := by
+    simpa using (hf ε hε).add (hg ε hε)
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds hsum
+    (fun _ => zero_le _) hbound
+
+set_option maxHeartbeats 400000 in
+-- Heartbeat bump: PseudoMetrizable synthesis on the product
+-- `Matrix k k ℝ × (k → ℝ)` with scoped elementwise norm is expensive.
+/-- **Matrix-vector multiplication CMT.** If `A n →ₚ Ainf` (matrix in measure) and
+`v n →ₚ vinf` (vector in measure), then `A n *ᵥ v n →ₚ Ainf *ᵥ vinf`. -/
+theorem tendstoInMeasure_mulVec
+    [IsFiniteMeasure μ]
+    {k : Type*} [Fintype k]
+    {A : ℕ → α → Matrix k k ℝ} {Ainf : α → Matrix k k ℝ}
+    {v : ℕ → α → k → ℝ} {vinf : α → k → ℝ}
+    (hA_meas : ∀ n, AEStronglyMeasurable (A n) μ)
+    (hv_meas : ∀ n, AEStronglyMeasurable (v n) μ)
+    (hA : TendstoInMeasure μ A atTop Ainf)
+    (hv : TendstoInMeasure μ v atTop vinf) :
+    TendstoInMeasure μ (fun n ω => A n ω *ᵥ v n ω) atTop (fun ω => Ainf ω *ᵥ vinf ω) := by
+  have hprod_meas : ∀ n, AEStronglyMeasurable (fun ω => (A n ω, v n ω)) μ :=
+    fun n => (hA_meas n).prodMk (hv_meas n)
+  have hcont : Continuous (fun p : Matrix k k ℝ × (k → ℝ) => p.1 *ᵥ p.2) :=
+    Continuous.matrix_mulVec continuous_fst continuous_snd
+  exact tendstoInMeasure_continuous_comp hprod_meas (tendstoInMeasure_prodMk hA hv) hcont
+
+end MulVec
+
 section WLLN
 
 variable {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω}
