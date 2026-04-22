@@ -5,23 +5,60 @@ import HansenEconometrics.Chapter4LeastSquaresRegression
 import HansenEconometrics.AsymptoticUtils
 
 /-!
-# Chapter 7 — Asymptotic Theory (Phase 1 deterministic scaffold)
+# Chapter 7 — Asymptotic Theory
 
-This file lays the deterministic groundwork for Hansen's asymptotic chapter.
-It introduces the finite-sample empirical moment objects
+This file formalizes Hansen's Chapter 7 (Asymptotic Theory for Least Squares)
+in three layers:
 
-* `sampleGram X        = Xᵀ X / n`   — sample analogue of `Q := E[X Xᵀ]`
-* `sampleCrossMoment X e = (Xᵀ e) / n` — sample analogue of `E[X e]`
+## Phase 1 — Deterministic scaffold
 
-and proves the algebraic identity that is the deterministic engine behind
-Hansen Theorem 7.1 (Consistency of Least Squares):
+Finite-sample empirical moment objects and the algebraic Phase 1 identity
+behind Theorem 7.1:
 
-  β̂ₙ - β = Q̂ₙ⁻¹ *ᵥ g̑ₙ.
+* `sampleGram X        = Xᵀ X / n`   — sample analogue of `Q := 𝔼[X Xᵀ]`
+* `sampleCrossMoment X e = (Xᵀ e) / n` — sample analogue of `𝔼[X e]`
+* `olsBeta_sub_eq_sampleGram_inv_mulVec_sampleCrossMoment`:
+  `β̂ₙ − β = Q̂ₙ⁻¹ *ᵥ ĝₙ` under invertibility of `Xᵀ X`.
 
-No probabilistic infrastructure is imported here beyond what Chapter 4 already
-uses. The iid-sample bridge, WLLN wrapper, and continuous-mapping steps that
-upgrade this identity into `β̂ₙ →ₚ β` live in a separate module and are
-scheduled for Phase 2.
+## Phase 2 — Stacking primitives
+
+Bridge from a pointwise `ℕ`-indexed regressor/error sequence to a `Fin n`-row
+design matrix at each sample point `ω`:
+
+* `stackRegressors`, `stackErrors`, `stackOutcomes`
+* `stack_linear_model` — `y = Xβ + e` pointwise lifts to the stacked form
+* `sampleGram_stackRegressors_eq_avg` — sample Gram as `(1/n) ∑ Xᵢ Xᵢᵀ`
+* `sampleCrossMoment_stackRegressors_stackErrors_eq_avg` — analogous
+* Fin↔Finset.range summation bridges matching Mathlib's WLLN indexing.
+
+## Phase 3 — Probabilistic consistency (Theorem 7.1)
+
+`SampleAssumption71` packages Hansen Assumption 7.1 (iid regressors and
+errors with finite second moments, invertible population Gram `Q`, and
+orthogonality `𝔼[e X] = 0`). The chain of convergences from Theorem 7.1 is
+then assembled:
+
+* `sampleGram_stackRegressors_tendstoInMeasure_popGram` — `Q̂ₙ →ₚ Q` via WLLN.
+* `sampleCrossMoment_stackRegressors_stackErrors_tendstoInMeasure_zero` —
+  `ĝₙ(e) →ₚ 0` via WLLN + orthogonality.
+* `sampleGramInv_mulVec_sampleCrossMoment_e_tendstoInMeasure_zero` —
+  `Q̂ₙ⁻¹ *ᵥ ĝₙ(e) →ₚ 0`, combining the previous two with the matrix-inverse
+  CMT and the mulVec CMT from `AsymptoticUtils`.
+
+This last theorem is the deterministic core of Theorem 7.1: the Phase 1
+identity `β̂ₙ − β = Q̂ₙ⁻¹ *ᵥ ĝₙ` is valid on the event `{Q̂ₙ invertible}`,
+and the RHS converges in probability to `0`. The remaining step to the
+textbook statement `β̂ₙ →ₚ β` is a probabilistic invertibility argument
+(det-CMT applied to `Q̂ₙ →ₚ Q` plus a triangle bound on the complement),
+documented in the crosswalk [notes/ch07/latex_links.md](../notes/ch07/latex_links.md)
+as pending.
+
+See also:
+- [`AsymptoticUtils.lean`](./AsymptoticUtils.lean) — WLLN wrapper, CMT for
+  convergence in measure, matrix-inverse and mulVec CMTs.
+- [`Chapter3LeastSquaresAlgebra.lean`](./Chapter3LeastSquaresAlgebra.lean) —
+  `olsBeta` and its total version `olsBetaStar`.
+- [notes/ch07/latex_links.md](../notes/ch07/latex_links.md) — LaTeX/Lean crosswalk.
 -/
 
 open scoped Matrix
