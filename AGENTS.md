@@ -112,8 +112,9 @@ Examples:
   wrappers and later proofs.
 - Chapter-facing probability theorems still belong in the chapter files when they are part of the
   chapter exposition rather than generic helper infrastructure.
-- Chapter 2.10 matrix/covariance bridges belong next to the linear-projection development rather than
-  in a new one-off file.
+- Reusable finite-dimensional mean/covariance helpers belong in
+  [HansenEconometrics/ProbabilityUtils.lean](./HansenEconometrics/ProbabilityUtils.lean), while
+  Chapter 2.10 theorem wrappers stay next to the linear-projection development.
 
 ## Crosswalk policy
 
