@@ -167,8 +167,8 @@ Notes:
 
 Links:
 - [Hansen excerpt](./ch2_excerpt.txt#L1765)
-- [Intercept formula](../../HansenEconometrics/Chapter2LinearProjection.lean#L229)
-- [Slope formula](../../HansenEconometrics/Chapter2LinearProjection.lean#L258)
+- [Intercept formula](../../HansenEconometrics/Chapter2LinearProjection.lean#L160)
+- [Slope formula](../../HansenEconometrics/Chapter2LinearProjection.lean#L189)
 
 | LaTeX | Lean conclusion |
 | --- | --- |
@@ -198,10 +198,12 @@ Hansen's notation and the Lean formalization.
   $\int \operatorname{Var}(Y \mid \mathcal{G}) \, d\mu = \int e^2 \, d\mu$.
 - [`linearProjectionBeta_eq_of_normal_equations`](../../HansenEconometrics/Chapter2LinearProjection.lean#L41):
   solves $Q_{XX} b = Q_{XY}$ as $b = Q_{XX}^{-1} Q_{XY}$.
-- [`integral_dotProduct_eq_meanVec_dotProduct`](../../HansenEconometrics/Chapter2LinearProjection.lean#L158):
+- [`integral_dotProduct_eq_meanVec_dotProduct`](../../HansenEconometrics/ProbabilityUtils.lean#L113):
   $\int X' b \, d\mu = (\int X \, d\mu)' b$.
-- [`covVec_dotProduct_eq_covMat_mulVec`](../../HansenEconometrics/Chapter2LinearProjection.lean#L174):
+- [`covVec_dotProduct_eq_covMat_mulVec`](../../HansenEconometrics/ProbabilityUtils.lean#L129):
   $\operatorname{cov}(X, X' b) = \operatorname{covMat}(X) b$.
-- [`covVec_linearProjectionModel`](../../HansenEconometrics/Chapter2LinearProjection.lean#L191):
+- [`covVec_affineModel`](../../HansenEconometrics/ProbabilityUtils.lean#L145):
+  reusable affine-model covariance decomposition.
+- [`covVec_linearProjectionModel`](../../HansenEconometrics/Chapter2LinearProjection.lean#L149):
   $\operatorname{cov}(X, \alpha + X' \beta + e) = \operatorname{covMat}(X)\beta +
   \operatorname{cov}(X, e)$.
